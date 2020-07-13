@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Dommel
 {
+
     public static partial class DommelMapper
     {
         /// <summary>
