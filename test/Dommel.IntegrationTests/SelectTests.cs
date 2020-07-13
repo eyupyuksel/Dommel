@@ -4,6 +4,10 @@ using Xunit;
 
 namespace Dommel.IntegrationTests
 {
+    public class ProductDto
+    {
+        public string Name { get; set; }
+    }
     [Collection("Database")]
     public class SelectTests
     {

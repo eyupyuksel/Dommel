@@ -31,6 +31,22 @@ namespace Dommel
             LogQuery<TEntity>(sql);
             return connection.Query<TEntity>(sql, parameters, transaction, buffered);
         }
+        /// <summary>
+        /// Test
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <typeparam name="TDto"></typeparam>
+        /// <param name="connection"></param>
+        /// <param name="predicate"></param>
+        /// <param name="transaction"></param>
+        /// <param name="buffered"></param>
+        /// <returns></returns>
+        public static IEnumerable<TDto> Select<TEntity,TDto>(this IDbConnection connection, Expression<Func<TEntity, bool>> predicate, IDbTransaction? transaction = null, bool buffered = true)
+        {
+            var sql = BuildSelectSql<TEntity,TDto>(connection, predicate, out var parameters);
+            LogQuery<TEntity>(sql);
+            return connection.Query<TDto>(sql, parameters, transaction, buffered);
+        }
 
         /// <summary>
         /// Selects all the entities matching the specified predicate.
@@ -89,6 +105,20 @@ namespace Dommel
         private static string BuildSelectSql<TEntity>(IDbConnection connection, Expression<Func<TEntity, bool>> predicate, out DynamicParameters parameters)
         {
             var type = typeof(TEntity);
+
+            // Build the select all part
+            var sql = BuildGetAllQuery(connection, type);
+            
+            // Append the where statement
+            sql += CreateSqlExpression<TEntity>(GetSqlBuilder(connection))
+                .Where(predicate)
+                .ToSql(out parameters);
+            return sql;
+        }
+
+        private static string BuildSelectSql<TEntity,TDto>(IDbConnection connection, Expression<Func<TEntity, bool>> predicate, out DynamicParameters parameters)
+        {
+            var type = typeof(TDto);
 
             // Build the select all part
             var sql = BuildGetAllQuery(connection, type);
